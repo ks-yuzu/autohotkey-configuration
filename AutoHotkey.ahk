@@ -1,4 +1,4 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -87,7 +87,6 @@ m_IsEnabled() {
         Return 0
     }
 
-
     IfWinActive ahk_class ConsoleWindowClass ; Command Prompt
     {
         IfWinActive ahk_exe bash.exe
@@ -126,7 +125,7 @@ m_IsNotMSExcel() {
 m_IsGoogleSheets() {
     global
     ;IfWinActive Google Sheets ahk_class MozillaWindowsClass
-    IfWinActive ahk_class MozillaWindowClass ; FireFox
+    IfWinActive Google Sheets ahk_class MozillaWindowClass ; FireFox
         Return 1
     IfWinActive Google Sheets ahk_class Chrome_WidgetWin_1 ; Chrome
         Return 1
@@ -160,6 +159,7 @@ m_EnableControlXPrefix() {
 m_EnableControlQPrefix() {
     Return
 }
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs simulating functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -233,12 +233,8 @@ m_PreviousLine() {
 m_ForwardWord() {
     global
     if (m_Mark) {
-        ;;Loop 5
-        ;;Send +{Right}
         Send ^+{Right}
     } else {
-        ;;Loop, 5
-        ;;Send {Right}
         Send ^{Right}
     }
 }
@@ -246,12 +242,8 @@ m_ForwardWord() {
 m_BackwardWord() {
     global
     if (m_Mark) {
-        ;;Loop, 5
-        ;;Send +{Left}
         Send ^+{Left}
     } else {
-        ;;Loop, 5
-        ;;Send {Left}
         Send ^{Left}
     }
 }
@@ -364,7 +356,7 @@ m_DeleteChar() {
     Send {Del}
     global m_Mark := 0
 }
-;; C-b
+;; C-h
 m_DeleteBackwardChar() {
     Send {BS}
     global m_Mark := 0
@@ -445,7 +437,7 @@ m_NewLine() {
     Send {Enter}
     global m_Mark := 0
 }
-;; (C-o)
+;; C-o
 m_OpenLine() {
     Send {Enter}{Up}
     global m_Mark := 0
@@ -575,13 +567,21 @@ if (m_IsEnabled()) {
     Send %A_ThisHotkey%
 }
 Return
+
 ^b::
 if (m_IsEnabled()) {
-    m_BackwardChar()
+    ;m_BackwardChar()
+
+    if (A_PriorHotkey = "^q") {
+        Send %A_ThisHotkey%
+    } else {
+        m_BackwardChar()
+    }
 } else {
     Send %A_ThisHotkey%
 }
 Return
+
 !b::
 if (m_IsEnabled()) {
     m_BackwardWord()
@@ -678,17 +678,22 @@ if (m_IsMSExcel() or m_IsGoogleSheets()) {
     Send %A_ThisHotkey%
 }
 Return
-;^j:: DISABLED FOR SKK
-;if (m_IsEnabled()) {
-;    if (A_PriorHotkey = "^x") {
-;    m_ToggleInputMethod()
-;} else {
-;    m_NewLine()
-;}
-;} else {
-;    Send %A_ThisHotkey%
-;}
-;Return
+
+^j::
+if (m_IsEnabled()) {
+    if (A_PriorHotkey = "^x") {
+        m_ToggleInputMethod()
+    } 
+    else {
+        ; m_NewLine()  ; disabled for corvusskk
+        Send %A_ThisHotkey%
+    }
+} 
+else {
+    Send %A_ThisHotkey%
+}
+Return
+
 k::
 if (m_IsEnabled()) {
   if (A_PriorHotkey = "^x") {
@@ -733,14 +738,17 @@ if (m_IsEnabled()) {
     Send %A_ThisHotkey%
 }
 Return
+
 ^o::
 if (m_IsEnabled()) {
     ;m_ToggleInputMethod()
-m_OpenLine()
-} else {
+    m_OpenLine()
+}
+else {
     Send %A_ThisHotkey%
 }
 Return
+
 ^p::
 if (m_IsEnabled()) {
     if (A_PriorHotkey = "^x") {
@@ -801,11 +809,13 @@ Return
 u::
 if (m_IsEnabled()) {
     if (A_PriorHotkey = "^x") {
-    m_Undo()
-} else {
-    Send %A_ThisHotkey%
+        m_Undo()
+    } 
+    else {
+        Send %A_ThisHotkey%
+    }
 }
-} else {
+else {
     Send %A_ThisHotkey%
 }
 Return
@@ -855,7 +865,12 @@ if (m_IsEnabled()) {
 Return
 ^y::
 if (m_IsEnabled()) {
-    m_Yank()
+    if (A_PriorHotkey = "^q") {
+        Send %A_ThisHotkey%
+    }
+    else {
+        m_Yank()
+    }
 } else {
     Send %A_ThisHotkey%
 }
@@ -905,6 +920,7 @@ Return
 ^!q::
 Suspend, Toggle
 Return
+
 ^!z::
 if (m_IsEnabled()) {
     MsgBox, AutoHotkey emacs keymap is Enabled.
@@ -919,3 +935,17 @@ Return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Capslock::Ctrl
 sc03a::Ctrl
+
+#]::
+    Send #^{Right}
+Return
+
+#[::
+    Send #^{Left}
+Return
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; includes other scripts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#Include, %A_ScriptDir%\AutoHotKey\Windows.10.Virtual.Desktop.Enhancer.0.11.2\virtual-desktop-enhancer.ahk
